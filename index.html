@@ -86,6 +86,46 @@
             color: #aaa; font-size: 15px; pointer-events: none;
         }
 
+        /* ========== VOICE BUTTON ========== */
+        .voice-btn {
+            position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+            width: 34px; height: 34px; border-radius: 10px;
+            border: none; background: transparent; cursor: pointer;
+            z-index: 2; display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s; color: #777;
+        }
+        .voice-btn:hover { background: #f0f0f0; color: #21201F; }
+        .voice-btn svg { width: 18px; height: 18px; pointer-events: none; }
+        .voice-btn.listening {
+            background: #E53935; color: #fff;
+            animation: pulse-voice 1.2s ease-in-out infinite;
+        }
+        .voice-btn.listening:hover { background: #E53935; }
+        @keyframes pulse-voice {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(229, 57, 53, 0.5); }
+            50% { box-shadow: 0 0 0 10px rgba(229, 57, 53, 0); }
+        }
+
+        .voice-status {
+            position: absolute; right: 50px; top: 50%; transform: translateY(-50%);
+            font-size: 11px; color: #E53935; font-weight: 600;
+            opacity: 0; transition: opacity 0.2s; pointer-events: none;
+            white-space: nowrap;
+        }
+        .voice-status.visible { opacity: 1; }
+
+        .interim-text {
+            padding: 8px 18px; font-size: 12px; color: var(--text-secondary);
+            font-style: italic; min-height: 28px;
+            border-bottom: 1px solid #f0f0f0;
+            display: none;
+        }
+        .interim-text.visible { display: block; }
+
+        .search-box {
+            padding-right: 70px;
+        }
+
         .poi-list {
             padding: 12px; overflow-y: auto; flex: 1;
             scrollbar-width: thin; scrollbar-color: #ddd transparent;
@@ -226,6 +266,15 @@
         <div class="search-wrapper">
             <span class="search-icon">🔍</span>
             <input type="text" class="search-box" id="searchInput" placeholder="Поиск зоны или стенда..." oninput="filterPoi(this.value)">
+            <span class="voice-status" id="voiceStatus">Слушаю...</span>
+            <button class="voice-btn" id="voiceBtn" title="Голосовой поиск" onclick="toggleVoice()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                    <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                    <line x1="12" y1="19" x2="12" y2="23"/>
+                    <line x1="8" y1="23" x2="16" y2="23"/>
+                </svg>
+            </button>
         </div>
     </div>
     <div class="poi-list" id="poiList"></div>
@@ -744,6 +793,188 @@ function filterPoi(query) {
         const text = item.textContent.toLowerCase();
         item.style.display = (!q || text.includes(q)) ? 'flex' : 'none';
     });
+}
+
+// ============================================================
+// VOICE SEARCH (Web Speech API)
+// ============================================================
+
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+const voiceBtn = document.getElementById('voiceBtn');
+const voiceStatus = document.getElementById('voiceStatus');
+const searchInput = document.getElementById('searchInput');
+
+let recognition = null;
+let isListening = false;
+
+if (SpeechRecognition) {
+    recognition = new SpeechRecognition();
+    recognition.lang = 'ru-RU';
+    recognition.continuous = false;
+    recognition.interimResults = true;
+    recognition.maxAlternatives = 1;
+
+    recognition.onstart = () => {
+        isListening = true;
+        voiceBtn?.classList.add('listening');
+        if (voiceStatus) voiceStatus.classList.add('visible');
+    };
+
+    recognition.onresult = (event) => {
+        let finalTranscript = '';
+        let interimTranscript = '';
+
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+            const transcript = event.results[i][0].transcript;
+            if (event.results[i].isFinal) finalTranscript += transcript;
+            else interimTranscript += transcript;
+        }
+
+        if (voiceStatus) {
+            if (interimTranscript) voiceStatus.textContent = 'Слушаю: ' + interimTranscript;
+            else voiceStatus.textContent = 'Слушаю...';
+        }
+
+        if (finalTranscript) {
+            const text = finalTranscript.trim();
+            if (!text) return;
+
+            if (searchInput) searchInput.value = text;
+            filterPoi(text);
+
+            if (voiceStatus) voiceStatus.textContent = 'Распознано: ' + text;
+            showToast('🎙 ' + text);
+
+            tryAutoNavigate(text);
+
+            setTimeout(() => {
+                if (isListening) stopVoice();
+            }, 1500);
+        }
+    };
+
+    recognition.onerror = (event) => {
+        let msg = 'Ошибка распознавания';
+        if (event.error === 'no-speech') msg = 'Речь не обнаружена';
+        else if (event.error === 'audio-capture') msg = 'Микрофон не найден';
+        else if (event.error === 'not-allowed') msg = 'Доступ к микрофону запрещён';
+        else if (event.error === 'network') msg = 'Ошибка сети (нужен интернет)';
+
+        showToast(msg, true);
+        stopVoice();
+    };
+
+    recognition.onend = () => {
+        if (isListening) {
+            try { recognition.start(); } catch (e) { stopVoice(); }
+        } else {
+            voiceBtn?.classList.remove('listening');
+            if (voiceStatus) voiceStatus.classList.remove('visible');
+            if (voiceStatus) voiceStatus.textContent = 'Слушаю...';
+        }
+    };
+} else {
+    if (voiceBtn) {
+        voiceBtn.style.opacity = '0.4';
+        voiceBtn.title = 'Голосовой поиск не поддерживается в этом браузере';
+        voiceBtn.onclick = () => showToast('Голосовой поиск работает в Chrome, Edge, Safari', true);
+    }
+}
+
+function toggleVoice() {
+    if (!recognition) return;
+    if (isListening) stopVoice();
+    else startVoice();
+}
+
+function startVoice() {
+    if (searchInput) searchInput.value = '';
+    filterPoi('');
+
+    try {
+        recognition.start();
+    } catch (e) {
+        // Игнорируем "already started"
+    }
+}
+
+function stopVoice() {
+    isListening = false;
+    try { recognition?.stop(); } catch (e) {}
+    voiceBtn?.classList.remove('listening');
+    voiceStatus?.classList.remove('visible');
+}
+
+function tryAutoNavigate(text) {
+    const normalized = (text || '').toLowerCase().trim();
+    if (!normalized) return;
+
+    // Текущий этаж: зоны
+    const zones = floorsData[currentFloor]?.zones || [];
+    for (const zone of zones) {
+        const name = zone.name.toLowerCase();
+        if (name === normalized || name.includes(normalized) || normalized.includes(name)) {
+            setTimeout(() => flyToZone(currentFloor, zone.id), 800);
+            return;
+        }
+    }
+
+    // Текущий этаж: стенды
+    const booths = floorsData[currentFloor]?.booths || [];
+    for (const booth of booths) {
+        const name = booth.name.toLowerCase();
+        const code = booth.code.toLowerCase();
+        if (name === normalized || name.includes(normalized) || normalized.includes(name) || code === normalized || code.includes(normalized) || normalized.includes(code)) {
+            setTimeout(() => flyToBooth(currentFloor, booth.code), 800);
+            return;
+        }
+    }
+
+    // Другой этаж
+    const otherFloor = currentFloor === 1 ? 2 : 1;
+    const otherZones = floorsData[otherFloor]?.zones || [];
+    for (const zone of otherZones) {
+        const name = zone.name.toLowerCase();
+        if (name === normalized || name.includes(normalized) || normalized.includes(name)) {
+            setTimeout(() => {
+                switchFloor(otherFloor);
+                setTimeout(() => flyToZone(otherFloor, zone.id), 400);
+            }, 800);
+            return;
+        }
+    }
+}
+
+function showToast(msg, isError = false) {
+    let toast = document.getElementById('toast');
+    if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'toast';
+        toast.style.position = 'absolute';
+        toast.style.top = '120px';
+        toast.style.left = '50%';
+        toast.style.transform = 'translateX(-50%)';
+        toast.style.zIndex = '2000';
+        toast.style.background = isError ? '#E53935' : '#333';
+        toast.style.color = '#fff';
+        toast.style.padding = '10px 18px';
+        toast.style.borderRadius = '10px';
+        toast.style.fontSize = '13px';
+        toast.style.boxShadow = '0 4px 16px rgba(0,0,0,0.2)';
+        toast.style.opacity = '0';
+        toast.style.pointerEvents = 'none';
+        toast.style.transition = 'opacity 0.3s';
+        document.body.appendChild(toast);
+    }
+
+    toast.textContent = msg;
+    toast.style.background = isError ? '#E53935' : '#333';
+    toast.style.opacity = '1';
+
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(() => {
+        toast.style.opacity = '0';
+    }, 3000);
 }
 
 // ============================================================
