@@ -253,8 +253,8 @@
 
 <!-- Floor Switcher -->
 <div class="floor-switcher">
-    <button class="floor-btn active" onclick="switchFloor(1)">Строение 1</button>
-    <button class="floor-btn" onclick="switchFloor(2)">Строение 2</button>
+    <button class="floor-btn active" onclick="switchFloor(1)">Этаж 1</button>
+    <button class="floor-btn" onclick="switchFloor(2)">Этаж 2</button>
 </div>
 
 <!-- Sidebar Toggle -->
@@ -292,286 +292,48 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 // ============================================================
-// SVG-ПЛАНЫ ЗДАНИЙ
+// ПОДЛОЖКИ КАРТ (1.png / 2.png)
 // ============================================================
 
-function createFloor1SVG() {
-    return `<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 700" width="1200" height="700">
-  <defs>
-    <pattern id="grid1" width="40" height="40" patternUnits="userSpaceOnUse">
-      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#e0e0e0" stroke-width="0.5"/>
-    </pattern>
-  </defs>
-  
-  <!-- Background -->
-  <rect width="1200" height="700" fill="#FAFAFA"/>
-  <rect width="1200" height="700" fill="url(#grid1)"/>
-  
-  <!-- Building outline -->
-  <rect x="100" y="80" width="1000" height="520" rx="8" fill="#FFFFFF" stroke="#37474F" stroke-width="3"/>
-  
-  <!-- Inner walls -->
-  <line x1="420" y1="80" x2="420" y2="600" stroke="#546E7A" stroke-width="2"/>
-  <line x1="100" y1="350" x2="420" y2="350" stroke="#546E7A" stroke-width="2"/>
-  
-  <!-- Zone 1: Стойка информации -->
-  <rect x="110" y="360" width="300" height="230" rx="4" fill="#FFF8E1" stroke="#FFB300" stroke-width="1.5" stroke-dasharray="6,3"/>
-  <text x="260" y="460" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#E65100">СТОЙКА</text>
-  <text x="260" y="482" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#E65100">ИНФОРМАЦИИ</text>
-  <text x="260" y="510" text-anchor="middle" font-family="Arial,sans-serif" font-size="28" fill="#FF8F00">①</text>
-  
-  <!-- Zone 2: Гардероб -->
-  <rect x="110" y="90" width="300" height="250" rx="4" fill="#E8F5E9" stroke="#66BB6A" stroke-width="1.5" stroke-dasharray="6,3"/>
-  <text x="260" y="210" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#2E7D32">ГАРДЕРОБ</text>
-  <text x="260" y="240" text-anchor="middle" font-family="Arial,sans-serif" font-size="28" fill="#388E3C">②</text>
-  
-  <!-- Zone 3: Выставка -->
-  <rect x="430" y="90" width="660" height="500" rx="4" fill="#E3F2FD" stroke="#42A5F5" stroke-width="1.5" stroke-dasharray="6,3"/>
-  <text x="760" y="300" text-anchor="middle" font-family="Arial,sans-serif" font-size="18" font-weight="700" fill="#1565C0">ВЫСТАВКА К 100-ЛЕТИЮ</text>
-  <text x="760" y="326" text-anchor="middle" font-family="Arial,sans-serif" font-size="18" font-weight="700" fill="#1565C0">ГРАЖДАНСКОЙ АВИАЦИИ РОССИИ</text>
-  <text x="760" y="370" text-anchor="middle" font-family="Arial,sans-serif" font-size="32" fill="#1976D2">③</text>
-  
-  <!-- Exhibition decorative elements -->
-  <rect x="480" y="140" width="80" height="60" rx="4" fill="#BBDEFB" stroke="#90CAF9" stroke-width="1"/>
-  <rect x="580" y="140" width="80" height="60" rx="4" fill="#BBDEFB" stroke="#90CAF9" stroke-width="1"/>
-  <rect x="680" y="140" width="80" height="60" rx="4" fill="#BBDEFB" stroke="#90CAF9" stroke-width="1"/>
-  <rect x="780" y="140" width="80" height="60" rx="4" fill="#BBDEFB" stroke="#90CAF9" stroke-width="1"/>
-  <rect x="880" y="140" width="80" height="60" rx="4" fill="#BBDEFB" stroke="#90CAF9" stroke-width="1"/>
-  <rect x="980" y="140" width="80" height="60" rx="4" fill="#BBDEFB" stroke="#90CAF9" stroke-width="1"/>
-  
-  <rect x="480" y="440" width="80" height="60" rx="4" fill="#BBDEFB" stroke="#90CAF9" stroke-width="1"/>
-  <rect x="580" y="440" width="80" height="60" rx="4" fill="#BBDEFB" stroke="#90CAF9" stroke-width="1"/>
-  <rect x="680" y="440" width="80" height="60" rx="4" fill="#BBDEFB" stroke="#90CAF9" stroke-width="1"/>
-  <rect x="780" y="440" width="80" height="60" rx="4" fill="#BBDEFB" stroke="#90CAF9" stroke-width="1"/>
-  <rect x="880" y="440" width="80" height="60" rx="4" fill="#BBDEFB" stroke="#90CAF9" stroke-width="1"/>
-  <rect x="980" y="440" width="80" height="60" rx="4" fill="#BBDEFB" stroke="#90CAF9" stroke-width="1"/>
-  
-  <!-- Entrance -->
-  <rect x="220" y="590" width="120" height="30" rx="4" fill="#FF8F00"/>
-  <text x="280" y="611" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" font-weight="700" fill="#FFF">ВХОД ▼</text>
-  
-  <!-- Title -->
-  <text x="600" y="45" text-anchor="middle" font-family="Arial,sans-serif" font-size="20" font-weight="700" fill="#37474F">СТРОЕНИЕ 1 — ТЕРМИНАЛ ПРИЛЁТА (ПУЛКОВО-2)</text>
-  <text x="600" y="670" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#90A4AE">ул. Стартовая, д.17, стр. 1</text>
-  
-  <!-- Compass -->
-  <circle cx="1120" cy="50" r="22" fill="#fff" stroke="#ccc" stroke-width="1"/>
-  <text x="1120" y="42" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#999">N</text>
-  <polygon points="1120,28 1116,48 1124,48" fill="#E53935"/>
-</svg>`;
-}
-
-function createFloor2SVG() {
-    return `<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 900" width="1400" height="900">
-  <defs>
-    <pattern id="grid2" width="40" height="40" patternUnits="userSpaceOnUse">
-      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#e0e0e0" stroke-width="0.5"/>
-    </pattern>
-  </defs>
-  
-  <rect width="1400" height="900" fill="#FAFAFA"/>
-  <rect width="1400" height="900" fill="url(#grid2)"/>
-  
-  <!-- Building outline - L-shape -->
-  <path d="M 80,60 L 1320,60 L 1320,840 L 80,840 Z" rx="8" fill="#FFFFFF" stroke="#37474F" stroke-width="3"/>
-  
-  <!-- === LEFT SECTION === -->
-  <!-- Zone 1: Регистрация -->
-  <rect x="90" y="70" width="280" height="180" rx="4" fill="#FFF8E1" stroke="#FFB300" stroke-width="1.5"/>
-  <text x="230" y="150" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#E65100">ЗОНА</text>
-  <text x="230" y="170" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#E65100">РЕГИСТРАЦИИ</text>
-  <text x="230" y="200" text-anchor="middle" font-family="Arial,sans-serif" font-size="24" fill="#FF8F00">①</text>
-  
-  <!-- Zone 2: Гардероб -->
-  <rect x="90" y="260" width="280" height="140" rx="4" fill="#E8F5E9" stroke="#66BB6A" stroke-width="1.5"/>
-  <text x="230" y="330" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#2E7D32">ГАРДЕРОБ</text>
-  <text x="230" y="360" text-anchor="middle" font-family="Arial,sans-serif" font-size="24" fill="#388E3C">②</text>
-  
-  <!-- Zone 9: Орг. комитет -->
-  <rect x="90" y="410" width="280" height="130" rx="4" fill="#F3E5F5" stroke="#AB47BC" stroke-width="1.5"/>
-  <text x="230" y="475" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#7B1FA2">ОРГ. КОМИТЕТ</text>
-  <text x="230" y="505" text-anchor="middle" font-family="Arial,sans-serif" font-size="24" fill="#8E24AA">⑨</text>
-  
-  <!-- Zone 8: Интервью студия -->
-  <rect x="90" y="550" width="280" height="130" rx="4" fill="#FCE4EC" stroke="#EC407A" stroke-width="1.5"/>
-  <text x="230" y="615" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#C2185B">ИНТЕРВЬЮ</text>
-  <text x="230" y="635" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#C2185B">СТУДИЯ</text>
-  <text x="230" y="662" text-anchor="middle" font-family="Arial,sans-serif" font-size="24" fill="#D81B60">⑧</text>
-  
-  <!-- === CENTER SECTION === -->
-  <!-- Zone 5: Пленарный зал -->
-  <rect x="380" y="70" width="460" height="310" rx="4" fill="#E3F2FD" stroke="#42A5F5" stroke-width="1.5"/>
-  <text x="610" y="190" text-anchor="middle" font-family="Arial,sans-serif" font-size="18" font-weight="700" fill="#1565C0">ПЛЕНАРНЫЙ ЗАЛ</text>
-  <text x="610" y="230" text-anchor="middle" font-family="Arial,sans-serif" font-size="30" fill="#1976D2">⑤</text>
-  <!-- Chairs representation -->
-  <g fill="#BBDEFB" stroke="#90CAF9" stroke-width="0.5">
-    ${Array.from({length:8}, (_,i) => Array.from({length:4}, (_,j) => 
-      `<rect x="${430+i*50}" y="${270+j*22}" width="36" height="14" rx="2"/>`
-    ).join('')).join('')}
-  </g>
-  <rect x="510" y="100" width="200" height="50" rx="4" fill="#90CAF9" stroke="#64B5F6" stroke-width="1"/>
-  <text x="610" y="130" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#1565C0">СЦЕНА / ЭКРАН</text>
-  
-  <!-- Zone 10: Дискуссионный зал -->
-  <rect x="380" y="390" width="460" height="240" rx="4" fill="#E8EAF6" stroke="#5C6BC0" stroke-width="1.5"/>
-  <text x="610" y="500" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#283593">ДИСКУССИОННЫЙ ЗАЛ</text>
-  <text x="610" y="535" text-anchor="middle" font-family="Arial,sans-serif" font-size="28" fill="#3949AB">⑩</text>
-  
-  <!-- Zone 4: Деловая игра -->
-  <rect x="380" y="640" width="460" height="190" rx="4" fill="#FFF3E0" stroke="#FF9800" stroke-width="1.5"/>
-  <text x="610" y="730" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#E65100">ДЕЛОВАЯ ИГРА</text>
-  <text x="610" y="765" text-anchor="middle" font-family="Arial,sans-serif" font-size="28" fill="#F57C00">④</text>
-  
-  <!-- === RIGHT SECTION === -->
-  <!-- Zone 3: Демо-зона -->
-  <rect x="850" y="70" width="460" height="200" rx="4" fill="#E0F7FA" stroke="#26C6DA" stroke-width="1.5"/>
-  <text x="1080" y="160" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#00838F">ДЕМО-ЗОНА</text>
-  <text x="1080" y="195" text-anchor="middle" font-family="Arial,sans-serif" font-size="28" fill="#00ACC1">③</text>
-  
-  <!-- Zone 7: Стенды партнёров -->
-  <rect x="850" y="280" width="460" height="350" rx="4" fill="#F1F8E9" stroke="#9CCC65" stroke-width="1.5"/>
-  <text x="1080" y="310" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#558B2F">СТЕНДЫ ПАРТНЁРОВ</text>
-  <text x="1080" y="332" text-anchor="middle" font-family="Arial,sans-serif" font-size="22" fill="#689F38">⑦</text>
-  
-  <!-- Booth grid -->
-  <g font-family="Arial,sans-serif" font-size="10" font-weight="600">
-    <!-- Row C -->
-    <rect x="880" y="350" width="55" height="35" rx="3" fill="#C8E6C9" stroke="#81C784" stroke-width="1"/>
-    <text x="907" y="372" text-anchor="middle" fill="#2E7D32">C1</text>
-    <rect x="940" y="350" width="55" height="35" rx="3" fill="#C8E6C9" stroke="#81C784" stroke-width="1"/>
-    <text x="967" y="372" text-anchor="middle" fill="#2E7D32">C2</text>
-    <rect x="1000" y="350" width="55" height="35" rx="3" fill="#C8E6C9" stroke="#81C784" stroke-width="1"/>
-    <text x="1027" y="372" text-anchor="middle" fill="#2E7D32">C3</text>
-    <rect x="1060" y="350" width="55" height="35" rx="3" fill="#C8E6C9" stroke="#81C784" stroke-width="1"/>
-    <text x="1087" y="372" text-anchor="middle" fill="#2E7D32">C4</text>
-    <rect x="1120" y="350" width="55" height="35" rx="3" fill="#C8E6C9" stroke="#81C784" stroke-width="1"/>
-    <text x="1147" y="372" text-anchor="middle" fill="#2E7D32">C5</text>
-    <rect x="1180" y="350" width="55" height="35" rx="3" fill="#C8E6C9" stroke="#81C784" stroke-width="1"/>
-    <text x="1207" y="372" text-anchor="middle" fill="#2E7D32">C6</text>
-    <rect x="1240" y="350" width="55" height="35" rx="3" fill="#C8E6C9" stroke="#81C784" stroke-width="1"/>
-    <text x="1267" y="372" text-anchor="middle" fill="#2E7D32">C7</text>
-    
-    <!-- Row D -->
-    <rect x="880" y="400" width="55" height="35" rx="3" fill="#DCEDC8" stroke="#AED581" stroke-width="1"/>
-    <text x="907" y="422" text-anchor="middle" fill="#33691E">D1</text>
-    <rect x="940" y="400" width="55" height="35" rx="3" fill="#DCEDC8" stroke="#AED581" stroke-width="1"/>
-    <text x="967" y="422" text-anchor="middle" fill="#33691E">D2</text>
-    <rect x="1000" y="400" width="55" height="35" rx="3" fill="#DCEDC8" stroke="#AED581" stroke-width="1"/>
-    <text x="1027" y="422" text-anchor="middle" fill="#33691E">D3</text>
-    <rect x="1060" y="400" width="55" height="35" rx="3" fill="#DCEDC8" stroke="#AED581" stroke-width="1"/>
-    <text x="1087" y="422" text-anchor="middle" fill="#33691E">D4</text>
-    <rect x="1120" y="400" width="55" height="35" rx="3" fill="#DCEDC8" stroke="#AED581" stroke-width="1"/>
-    <text x="1147" y="422" text-anchor="middle" fill="#33691E">D5</text>
-    
-    <!-- Row D extended -->
-    <rect x="1180" y="400" width="115" height="35" rx="3" fill="#DCEDC8" stroke="#AED581" stroke-width="1"/>
-    <text x="1237" y="422" text-anchor="middle" fill="#33691E">D7-D10</text>
-    
-    <!-- Row E -->
-    <rect x="880" y="450" width="55" height="35" rx="3" fill="#F0F4C3" stroke="#DCE775" stroke-width="1"/>
-    <text x="907" y="472" text-anchor="middle" fill="#827717">E1</text>
-    <rect x="940" y="450" width="55" height="35" rx="3" fill="#F0F4C3" stroke="#DCE775" stroke-width="1"/>
-    <text x="967" y="472" text-anchor="middle" fill="#827717">E2</text>
-    <rect x="1000" y="450" width="55" height="35" rx="3" fill="#F0F4C3" stroke="#DCE775" stroke-width="1"/>
-    <text x="1027" y="472" text-anchor="middle" fill="#827717">E3</text>
-    <rect x="1060" y="450" width="55" height="35" rx="3" fill="#F0F4C3" stroke="#DCE775" stroke-width="1"/>
-    <text x="1087" y="472" text-anchor="middle" fill="#827717">E4</text>
-    <rect x="1120" y="450" width="55" height="35" rx="3" fill="#F0F4C3" stroke="#DCE775" stroke-width="1"/>
-    <text x="1147" y="472" text-anchor="middle" fill="#827717">E5</text>
-    <rect x="1180" y="450" width="55" height="35" rx="3" fill="#F0F4C3" stroke="#DCE775" stroke-width="1"/>
-    <text x="1207" y="472" text-anchor="middle" fill="#827717">E6</text>
-    <rect x="1240" y="450" width="55" height="35" rx="3" fill="#F0F4C3" stroke="#DCE775" stroke-width="1"/>
-    <text x="1267" y="472" text-anchor="middle" fill="#827717">E7</text>
-    
-    <!-- Row F -->
-    <rect x="880" y="500" width="115" height="35" rx="3" fill="#FFF9C4" stroke="#FFF176" stroke-width="1"/>
-    <text x="937" y="522" text-anchor="middle" fill="#F57F17">F3</text>
-    
-    <!-- Row G -->
-    <rect x="880" y="550" width="115" height="35" rx="3" fill="#FFE0B2" stroke="#FFB74D" stroke-width="1"/>
-    <text x="937" y="572" text-anchor="middle" fill="#E65100">G1-G2</text>
-    <text x="1010" y="572" font-size="9" fill="#BF360C">РИВЦ-Пулково</text>
-  </g>
-  
-  <!-- Zone 6: Нетворкинг/Кафе -->
-  <rect x="850" y="640" width="220" height="190" rx="4" fill="#FBE9E7" stroke="#FF8A65" stroke-width="1.5"/>
-  <text x="960" y="725" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#BF360C">НЕТВОРКИНГ</text>
-  <text x="960" y="745" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#BF360C">/ КАФЕ</text>
-  <text x="960" y="775" text-anchor="middle" font-family="Arial,sans-serif" font-size="24" fill="#E64A19">⑥</text>
-  
-  <!-- Zone 11: Атриум -->
-  <rect x="1080" y="640" width="230" height="190" rx="4" fill="#EDE7F6" stroke="#7E57C2" stroke-width="1.5"/>
-  <text x="1195" y="735" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#4527A0">АТРИУМ</text>
-  <text x="1195" y="770" text-anchor="middle" font-family="Arial,sans-serif" font-size="28" fill="#5E35B1">⑪</text>
-  
-  <!-- Entrance -->
-  <rect x="170" y="830" width="140" height="30" rx="4" fill="#FF8F00"/>
-  <text x="240" y="851" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" font-weight="700" fill="#FFF">ВХОД ▼</text>
-  
-  <!-- Title -->
-  <text x="700" y="35" text-anchor="middle" font-family="Arial,sans-serif" font-size="20" font-weight="700" fill="#37474F">СТРОЕНИЕ 2 — ОСНОВНАЯ ПЛОЩАДКА ФОРУМА</text>
-  <text x="700" y="885" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#90A4AE">ул. Стартовая, д.17, стр. 2</text>
-  
-  <!-- Compass -->
-  <circle cx="1340" cy="45" r="22" fill="#fff" stroke="#ccc" stroke-width="1"/>
-  <text x="1340" y="37" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#999">N</text>
-  <polygon points="1340,23 1336,43 1344,43" fill="#E53935"/>
-</svg>`;
-}
+const FLOOR_1_IMAGE = '1.png';
+const FLOOR_2_IMAGE = '2.png';
 
 // ============================================================
 // DATA
-// ============================================================
+// ===========================================================
 
 const floorsData = {
     1: {
-        svg: createFloor1SVG(),
-        bounds: [[0, 0], [700, 1200]],
+        // Вместо SVG теперь просто путь к картинке
+        image: FLOOR_1_IMAGE,
+        // Размеры вашей картинки в пикселях [высота, ширина]
+        bounds: [[0, 0], [2286, 614]],
         center: [350, 600],
         defaultZoom: 0,
         zones: [
-            { id: 1, name: 'Стойка информации', icon: 'ℹ️', color: '#FFB300', coords: [500, 200], desc: 'Регистрация гостей, получение бейджей и материалов форума', badge: 'Вход', badgeColor: '#FFF8E1' },
-            { id: 2, name: 'Гардероб', icon: '🧥', color: '#66BB6A', coords: [250, 200], desc: 'Гардероб для верхней одежды участников', badge: 'Сервис', badgeColor: '#E8F5E9' },
-            { id: 3, name: 'Выставка к 100-летию ГА', icon: '✈️', color: '#42A5F5', coords: [350, 750], desc: 'Выставка к 100-летию гражданской авиации России в терминале прилёта', badge: 'Экспозиция', badgeColor: '#E3F2FD' }
+            { id: 1, name: 'Зона регистрации', icon: '', color: '#FFB300', coords: [220, 200], desc: 'Регистрация гостей, получение бейджей и материалов форума', badge: 'Сервис', badgeColor: '#FFF8E1' },
+            { id: 2, name: 'Гардероб', icon: '', color: '#66BB6A', coords: [350, 250], desc: 'Гардероб для верхней одежды участников', badge: 'Сервис', badgeColor: '#E8F5E9' },
+            { id: 3, name: 'Туалет', icon: '', color: '#42A5F5', coords: [300, 50], desc: '', badge: '', badgeColor: '#E3F2FD' },
+            { id: 4, name: 'Демо-зона', icon: '', color: '#FFB300', coords: [1200, 520], desc: '', badge: 'Демо', badgeColor: '#FFF8E1' },
+            { id: 5, name: 'Пленарный зал', icon: '', color: '#66BB6A', coords: [2100, 280], desc: '', badge: '', badgeColor: '#E8F5E9' },
+            { id: 6, name: 'Нетворкинг/Кафе', icon: '', color: '#42A5F5', coords: [725, 210], desc: '', badge: 'Сервис', badgeColor: '#E3F2FD' },
+            { id: 7, name: 'Стенды партнеров', icon: '', color: '#FFB300', coords: [1000, 320], desc: '', badge: 'Экспозиция', badgeColor: '#FFF8E1' },
+            { id: 8, name: 'Интервью студия', icon: '', color: '#66BB6A', coords: [500, 220], desc: '', badge: 'Интерактив', badgeColor: '#E8F5E9' },
+            { id: 9, name: 'Дискуссионный зал', icon: '', color: '#42A5F5', coords: [1800, 320], desc: '', badge: 'Интерактив', badgeColor: '#E3F2FD' },
+            { id: 10, name: 'Орг. Комитет', icon: '', color: '#42A5F5', coords: [950, 520], desc: '', badge: 'Экспозиция', badgeColor: '#E3F2FD' }
         ]
     },
     2: {
-        svg: createFloor2SVG(),
-        bounds: [[0, 0], [900, 1400]],
+        image: FLOOR_2_IMAGE,
+        bounds: [[0, 0], [2286, 614]],
         center: [450, 700],
         defaultZoom: -1,
         zones: [
-            { id: 1, name: 'Зона регистрации', icon: '🎫', color: '#FFB300', coords: [770, 200], desc: 'Регистрация участников, получение бейджей и пакетов', badge: 'Вход', badgeColor: '#FFF8E1' },
-            { id: 2, name: 'Гардероб', icon: '🧥', color: '#66BB6A', coords: [650, 200], desc: 'Гардероб для верхней одежды', badge: 'Сервис', badgeColor: '#E8F5E9' },
-            { id: 3, name: 'Демо-зона', icon: '💻', color: '#26C6DA', coords: [780, 1000], desc: 'Демонстрация продуктов РИВЦ-Пулково: КОБРА ВЕБ, Rivc.RMS, Rivc.BRS, Rivc.TLB, Rivc.WT', badge: 'Демо', badgeColor: '#E0F7FA' },
-            { id: 4, name: 'Деловая игра', icon: '🎮', color: '#FF9800', coords: [150, 600], desc: 'Деловая игра «Аэропорт» — 7 зон предполётных процедур с оборудованием партнёров', badge: 'Интерактив', badgeColor: '#FFF3E0' },
-            { id: 5, name: 'Пленарный зал', icon: '🎤', color: '#42A5F5', coords: [700, 600], desc: 'Главная сцена форума. Пленарные сессии, keynote-доклады, презентации ИТ-проектов года', badge: 'Главная сцена', badgeColor: '#E3F2FD' },
-            { id: 6, name: 'Нетворкинг / Кафе', icon: '☕', color: '#FF8A65', coords: [150, 1050], desc: 'Зона общения, кофе-брейки и фуршеты', badge: 'Отдых', badgeColor: '#FBE9E7' },
-            { id: 7, name: 'Стенды партнёров', icon: '🏢', color: '#9CCC65', coords: [550, 1050], desc: 'Выставочная зона: ГазИнформСервис, Аврора, БазАльт, Билтех, SMARTVISOR, НТЦ Актор, Байтэрг, Сафит, СПбГУГА, Тераплан, Нордикс и др.', badge: 'Выставка', badgeColor: '#F1F8E9' },
-            { id: 8, name: 'Интервью студия', icon: '🎬', color: '#EC407A', coords: [180, 450], desc: 'Студия для записи интервью со спикерами и участниками', badge: 'Медиа', badgeColor: '#FCE4EC' },
-            { id: 9, name: 'Орг. комитет', icon: '📋', color: '#AB47BC', coords: [350, 450], desc: 'Штаб организаторов форума МАИФ-2026', badge: 'Служебное', badgeColor: '#F3E5F5' },
-            { id: 10, name: 'Дискуссионный зал', icon: '💬', color: '#5C6BC0', coords: [380, 600], desc: 'Параллельные секции: ИБ, метеорология, интеллектуализация, хакатон', badge: 'Секции', badgeColor: '#E8EAF6' },
-            { id: 11, name: 'Атриум', icon: '🏛️', color: '#7E57C2', coords: [150, 1200], desc: 'Открытое пространство для неформального общения', badge: 'Пространство', badgeColor: '#EDE7F6' }
+            { id: 6, name: 'Нетворкинг/Кафе', icon: '', color: '#FFB300', coords: [1325, 170], desc: '', badge: 'Сервис', badgeColor: '#FFF8E1' },
+            { id: 7, name: 'Стенды партнеров', icon: '', color: '#66BB6A', coords: [850, 300], desc: '', badge: 'Экспозиция', badgeColor: '#E8F5E9' },
+            { id: 9, name: 'Дисскусионный зал', icon: '', color: '#26C6DA', coords: [1550, 300], desc: '', badge: 'Интерактив', badgeColor: '#E0F7FA' },
+            { id: 3, name: 'Туалет', icon: '', color: '#FF9800', coords: [1300, 50], desc: '', badge: '', badgeColor: '#FFF3E0' },
         ],
-        booths: [
-            { code: 'C1-C2', name: 'ГазИнформСервис', coords: [595, 900], desc: 'Отечественный разработчик средств ИБ для энергетики и транспорта' },
-            { code: 'C3', name: 'SMARTVISOR', coords: [595, 945], desc: 'Нейросетевая видеоаналитика (резидент Сколково, ООО «АйТренд»)' },
-            { code: 'C4', name: 'НТЦ Актор', coords: [595, 990], desc: 'Источники электроснабжения для наземного обслуживания ВС' },
-            { code: 'C5', name: 'КНИИТМУ', coords: [595, 1035], desc: 'Системы и средства связи и управления (65 лет опыта)' },
-            { code: 'C6-C7', name: 'БИЛТЕХ', coords: [595, 1080], desc: 'Промышленные компьютеры, защищённые ноутбуки, системы видеоаналитики' },
-            { code: 'D1-D2', name: 'Аврора', coords: [550, 900], desc: 'Защищённая российская мобильная ОС (ООО «Открытая мобильная платформа»)' },
-            { code: 'D3', name: 'Байтэрг', coords: [550, 945], desc: 'Комплексы мобильного видеонаблюдения и связи' },
-            { code: 'D4-D5', name: 'БазАльт', coords: [550, 990], desc: 'ОС «Альт» — экосистема российских решений: ОС, виртуализация, контейнеризация' },
-            { code: 'D7-D10', name: 'Высокоточные комплексы', coords: [550, 1035], desc: 'Холдинг НПО «Высокоточные комплексы» (Ростех): ЦКБА, ЦНИИАГ' },
-            { code: 'E1', name: 'Сафит', coords: [505, 900], desc: 'Композитные баллоны высокого давления для авиации и космоса' },
-            { code: 'E2-E3', name: 'TS Solution', coords: [505, 945], desc: 'Системный интегратор ИБ и ИТ-инфраструктуры' },
-            { code: 'E4-E5', name: 'СПбГУ ГА', coords: [505, 990], desc: 'Ведущий университет гражданской авиации России' },
-            { code: 'E6', name: 'Тераплан', coords: [505, 1035], desc: 'Платформа математической оптимизации для авиации' },
-            { code: 'E7', name: 'Нордикс', coords: [505, 1080], desc: 'Антигололёдные реагенты, противообледенительные жидкости для ВС' },
-            { code: 'G1-G2', name: 'РИВЦ-Пулково', coords: [460, 900], desc: 'Организатор форума. 60+ программных продуктов для гражданской авиации' }
-        ]
     }
 };
 
@@ -611,9 +373,13 @@ function clearMap() {
 function renderFloor(floorNum) {
     clearMap();
     const data = floorsData[floorNum];
-    const uri = svgToDataUri(data.svg);
-    
-    currentOverlay = L.imageOverlay(uri, data.bounds, {
+    if (!data.image) {
+        console.error('No image defined for floor', floorNum, data);
+        return;
+    }
+
+    // Рендерим PNG подложку вместо несуществующего data.svg
+    currentOverlay = L.imageOverlay(data.image, data.bounds, {
         interactive: true
     }).addTo(map);
     
@@ -1023,6 +789,8 @@ function showToast(msg, isError = false) {
 // ============================================================
 // INIT
 // ============================================================
+
+
 
 renderFloor(1);
 map.doubleClickZoom.disable();
