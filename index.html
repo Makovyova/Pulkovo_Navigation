@@ -905,15 +905,46 @@ function stopVoice() {
     voiceStatus?.classList.remove('visible');
 }
 
+function normalizeQuery(text) {
+    const raw = (text || '').toLowerCase().trim();
+    if (!raw) return '';
+
+    // Упрощённая база синонимов для голосового поиска
+    const dict = {
+        'регистрация': ['зона регистрации', 'регистрации', 'регистратура', 'бейдж', 'бейджи'],
+        'гардероб': ['гардероб', 'вешалка', 'верхняя одежда', 'одежда'],
+        'выставка': ['выставка', 'экспозиция', '100-летию', 'сто лет', '100 лет'],
+        'нетворкинг': ['нетворкинг', 'общение', 'кофе', 'кафе', 'кофе-брейк', 'фуршет'],
+        'атриум': ['атриум', 'атриум пространство'],
+        'пленарный': ['пленарный', 'пленар'],
+        'пленарный зал': ['пленарный зал', 'главная сцена', 'keynote', 'доклады'],
+        'дискуссионный': ['дискуссионный', 'секции', 'секция', 'панель'],
+        'деловая игра': ['деловая игра', 'игра', 'аэропорт'],
+        'стенды': ['стенды', 'выставка стенды', 'партнёров', 'партнеров'],
+        'демо': ['демо', 'демо-зона', 'демо зона', 'презентация'],
+        'интервью': ['интервью', 'студия', 'интервью студия', 'медиа'],
+        'орг. комитет': ['орг. комитет', 'организатор', 'организационный комитет', 'оргкомитет', 'комитет']
+    };
+
+    // Заменяем найденную “целевую” ключевую категорию, чтобы матчить названия зон/стендов
+    for (const [canonical, aliases] of Object.entries(dict)) {
+        if (raw === canonical || aliases.some(a => raw === a)) return canonical;
+        if (aliases.some(a => raw.includes(a))) return canonical;
+    }
+
+    return raw;
+}
+
 function tryAutoNavigate(text) {
-    const normalized = (text || '').toLowerCase().trim();
-    if (!normalized) return;
+    const normalized = normalizeQuery(text);
+    const phrase = (normalized || '').toLowerCase().trim();
+    if (!phrase) return;
 
     // Текущий этаж: зоны
     const zones = floorsData[currentFloor]?.zones || [];
     for (const zone of zones) {
         const name = zone.name.toLowerCase();
-        if (name === normalized || name.includes(normalized) || normalized.includes(name)) {
+        if (name === phrase || name.includes(phrase) || phrase.includes(name)) {
             setTimeout(() => flyToZone(currentFloor, zone.id), 800);
             return;
         }
@@ -924,7 +955,14 @@ function tryAutoNavigate(text) {
     for (const booth of booths) {
         const name = booth.name.toLowerCase();
         const code = booth.code.toLowerCase();
-        if (name === normalized || name.includes(normalized) || normalized.includes(name) || code === normalized || code.includes(normalized) || normalized.includes(code)) {
+        if (
+            name === phrase ||
+            name.includes(phrase) ||
+            phrase.includes(name) ||
+            code === phrase ||
+            code.includes(phrase) ||
+            phrase.includes(code)
+        ) {
             setTimeout(() => flyToBooth(currentFloor, booth.code), 800);
             return;
         }
@@ -935,7 +973,7 @@ function tryAutoNavigate(text) {
     const otherZones = floorsData[otherFloor]?.zones || [];
     for (const zone of otherZones) {
         const name = zone.name.toLowerCase();
-        if (name === normalized || name.includes(normalized) || normalized.includes(name)) {
+        if (name === phrase || name.includes(phrase) || phrase.includes(name)) {
             setTimeout(() => {
                 switchFloor(otherFloor);
                 setTimeout(() => flyToZone(otherFloor, zone.id), 400);
@@ -944,6 +982,11 @@ function tryAutoNavigate(text) {
         }
     }
 }
+
+// ============================================================
+// end tryAutoNavigate
+// ============================================================
+
 
 function showToast(msg, isError = false) {
     let toast = document.getElementById('toast');
